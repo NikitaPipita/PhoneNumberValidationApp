@@ -1,6 +1,8 @@
+import 'package:bloc_pattern/bloc_pattern.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import 'blocs/phone_number_screen_blocs/phone_field_bloc.dart';
 import 'screens/phone_number_screen/phone_number_screen.dart';
 
 void main() {
@@ -18,12 +20,18 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'PhoneNumberValidation',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
+    return BlocProvider(
+      child: MaterialApp(
+        title: 'PhoneNumberValidation',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: PhonePage(),
       ),
-      home: PhonePage(),
+
+      blocs: [
+        Bloc((i) => PhoneFieldBloc()),
+      ],
     );
   }
 }
