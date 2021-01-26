@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:bloc_pattern/bloc_pattern.dart';
-import 'package:flutter/material.dart';
 import 'package:rxdart/rxdart.dart';
 
 import 'phone_field_bloc.dart';
@@ -11,25 +10,24 @@ class PhoneNumberScreenFabBloc extends BlocBase{
   final _phoneFieldBloc = BlocProvider.getBloc<PhoneFieldBloc>();
   StreamSubscription _phoneFieldBlocSubscription;
 
-  final _activeColor = Colors.blue;
-  final _disableColor = Colors.grey[350];
+  final _fabColor = BehaviorSubject<PhoneNumberState>();
 
-  final _fabColor = BehaviorSubject<Color>();
-
-  Stream<Color> get getFabColor => _fabColor.stream;
+  Stream<PhoneNumberState> get getFabColor => _fabColor.stream;
 
 
   PhoneNumberScreenFabBloc() {
-    _fabColor.sink.add(_disableColor);
+    _fabColor.sink.add(PhoneNumberState(disable: true));
 
     _phoneFieldBlocSubscription =
         _phoneFieldBloc.getPhoneNumber.listen((event) {
-          if (event.validatePhoneNumber()) {
-            _fabColor.sink.add(_activeColor);
-          } else {
-            _fabColor.sink.add(_disableColor);
-          }
-        });
+      if (event.validatePhoneNumber()) {
+        var phone = event.parsePhoneNumber();
+        _fabColor.sink
+            .add(PhoneNumberState(disable: false, phoneNumber: phone));
+      } else {
+        _fabColor.sink.add(PhoneNumberState(disable: true));
+      }
+    });
   }
 
   @override
@@ -38,4 +36,14 @@ class PhoneNumberScreenFabBloc extends BlocBase{
     _phoneFieldBlocSubscription.cancel();
     _fabColor.close();
   }
+}
+
+class PhoneNumberState {
+  final bool disable;
+  final String phoneNumber;
+
+  PhoneNumberState({
+    this.disable,
+    this.phoneNumber
+  });
 }
